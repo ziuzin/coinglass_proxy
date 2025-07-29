@@ -16,14 +16,21 @@ def coinglass_price_history_html():
     if not API_KEY:
         return "<html><body><pre>Missing COINGLASS_API_KEY</pre></body></html>", 500
 
-    # Делаем запрос к основному прокси
+    # Делаем запрос к CoinGlass через ваш ключ
     cg_url = "https://open-api-v4.coinglass.com/api/spot/price/history"
     try:
-        resp = requests.get(cg_url, headers={"CG-API-KEY": API_KEY}, params=params, timeout=10)
+        resp = requests.get(
+            cg_url,
+            headers={"CG-API-KEY": API_KEY},
+            params=params,
+            timeout=10
+        )
+        resp.raise_for_status()
         data = resp.json()
+        pretty_json = json.dumps(data, indent=2)
     except Exception as e:
         # В случае ошибки выводим её в HTML
-        return f"<html><body><pre>Error: {str(e)}</pre></body></html>", 500
+        return "<html><body><pre>Error: {}</pre></body></html>".format(str(e)), 500
 
     # Возвращаем HTML с JSON-ответом
-    return f"<html><body><h1>CoinGlass Response</h1><pre>{json.dumps(data, indent=2)}</pre></body></html>"
+    return "<html><body><h1>CoinGlass Response</h1><pre>{}</pre></body></html>".format(pretty_json)
